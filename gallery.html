@@ -5,11 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NT-HP ギャラリー</title>
     <style>
-        body { background: #000; color: white; text-align: center; }
-        .slideshow-container { max-width: 500px; margin: auto; position: relative; }
-        .slide { display: none; }
+        body { background: #000; color: white; text-align: center; font-family: sans-serif; }
+        
+        /* スライドショーの外枠 */
+        .slideshow-container {
+            max-width: 500px;
+            height: 400px; /* 画像の高さに合わせて調整 */
+            margin: auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 各スライドの設定 */
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            opacity: 0; /* 最初は透明 */
+            transition: opacity 1.5s ease-in-out; /* 1.5秒かけてふわっとさせる */
+        }
+
+        /* 表示されている時の設定 */
+        .slide.active {
+            opacity: 1;
+        }
+
         img { width: 100%; height: auto; border-radius: 10px; }
-        .btn { color: white; background: #333; padding: 10px; text-decoration: none; display: inline-block; margin-top: 20px; }
+        .btn { color: white; background: #333; padding: 10px 20px; text-decoration: none; display: inline-block; margin-top: 20px; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -21,22 +44,28 @@
         <div class="slide"><img src="NT.png" alt="2"></div>
     </div>
 
-    <a href="index.html" class="btn">戻る</a>
+    <a href="index.html" class="btn">ホームへ戻る</a>
 
     <script>
-        let slideIndex = 0;
-        showSlides();
+        let slides = document.getElementsByClassName("slide");
+        let currentIndex = 0;
 
-        function showSlides() {
-            let slides = document.getElementsByClassName("slide");
-            for (let i = 0; i < slides.length; i++) {
-                slides[i].style.display = "none";  
-            }
-            slideIndex++;
-            if (slideIndex > slides.length) {slideIndex = 1}    
-            slides[slideIndex-1].style.display = "block";  
-            setTimeout(showSlides, 3000); // 3秒ごとに切り替え
+        function showNextSlide() {
+            // 現在のスライドから active クラスを消す
+            slides[currentIndex].classList.remove("active");
+            
+            // 次のインデックスへ（最後まで行ったら0に戻る）
+            currentIndex = (currentIndex + 1) % slides.length;
+            
+            // 次のスライドに active クラスを付ける
+            slides[currentIndex].classList.add("active");
         }
+
+        // 最初の1枚を表示
+        slides[0].classList.add("active");
+
+        // 4秒ごとに切り替え
+        setInterval(showNextSlide, 4000);
     </script>
 </body>
 </html>
