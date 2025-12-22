@@ -5,67 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NT-HP ギャラリー</title>
     <style>
-        body { background: #000; color: white; text-align: center; font-family: sans-serif; }
+        body { 
+            background: #000; 
+            color: white; 
+            text-align: center; 
+            font-family: sans-serif; 
+            margin: 0;
+            padding: 20px;
+        }
         
-        /* スライドショーの外枠 */
-        .slideshow-container {
+        /* 画像のスタイル */
+        .single-img {
+            width: 90%;
             max-width: 500px;
-            height: 400px; /* 画像の高さに合わせて調整 */
-            margin: auto;
-            position: relative;
-            overflow: hidden;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+            margin-bottom: 30px;
         }
 
-        /* 各スライドの設定 */
-        .slide {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            opacity: 0; /* 最初は透明 */
-            transition: opacity 1.5s ease-in-out; /* 1.5秒かけてふわっとさせる */
+        /* ボタンのスタイル */
+        .action-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background-color: #ff0050; /* TikTok風の赤色 */
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 30px;
+            transition: transform 0.2s, background-color 0.2s;
         }
 
-        /* 表示されている時の設定 */
-        .slide.active {
-            opacity: 1;
+        .action-btn:hover {
+            transform: scale(1.1);
+            background-color: #ff0070;
         }
 
-        img { width: 100%; height: auto; border-radius: 10px; }
-        .btn { color: white; background: #333; padding: 10px 20px; text-decoration: none; display: inline-block; margin-top: 20px; border-radius: 5px; }
+        /* 戻るボタン */
+        .back-link {
+            display: block;
+            margin-top: 50px;
+            color: #aaa;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
 
-    <h1>NTギャラリー</h1>
+    <h1>ギャラリー</h1>
 
-    <div class="slideshow-container">
-        <div class="slide"><img src="koutyou.jpg" alt="1"></div>
-        <div class="slide"><img src="NT.png" alt="2"></div>
-    </div>
+    <img src="koutyou.jpg" class="single-img" alt="メイン画像">
 
-    <a href="index.html" class="btn">ホームへ戻る</a>
+    <br>
 
-    <script>
-        let slides = document.getElementsByClassName("slide");
-        let currentIndex = 0;
+    <a href="https://www.tiktok.com/@ntv142" class="action-btn">
+        最新動画をチェック！
+    </a>
 
-        function showNextSlide() {
-            // 現在のスライドから active クラスを消す
-            slides[currentIndex].classList.remove("active");
-            
-            // 次のインデックスへ（最後まで行ったら0に戻る）
-            currentIndex = (currentIndex + 1) % slides.length;
-            
-            // 次のスライドに active クラスを付ける
-            slides[currentIndex].classList.add("active");
-        }
+    <a href="index.html" class="back-link">← ホームへ戻る</a>
 
-        // 最初の1枚を表示
-        slides[0].classList.add("active");
-
-        // 4秒ごとに切り替え
-        setInterval(showNextSlide, 4000);
-    </script>
 </body>
 </html>
