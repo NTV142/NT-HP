@@ -97,6 +97,11 @@
     </div>
 
     <script>
+function toggleMenu() {
+    const menu = document.getElementById('menu-content');
+    // 'open' クラスを付け外しして、CSSのアニメーションを発動させる
+    menu.classList.toggle('open');
+}
         function toggleMenu() {
             const menu = document.getElementById('menu-content');
             if (menu.style.display === 'block') {
