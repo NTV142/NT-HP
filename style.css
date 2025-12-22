@@ -3,12 +3,12 @@
     position: fixed;
     top: 15px;
     left: 15px;
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     cursor: pointer;
-    z-index: 1001; /* メニューより上に配置 */
+    z-index: 1001;
     background: #333;
-    border-radius: 5px;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -23,35 +23,36 @@
     margin: 3px 0;
 }
 
-/* 隠れているメニューリスト（アニメーション設定） */
+/* 隠れているメニューリスト */
 #menu-content {
     position: fixed;
     top: 0;
-    left: -220px; /* メニューの幅分だけ左に隠す */
-    width: 200px;
+    left: -250px; /* 画面外に隠す */
+    width: 220px;
     height: 100%;
-    background: rgba(0, 0, 0, 0.9);
-    padding-top: 70px;
+    background: rgba(0, 0, 0, 0.95);
+    padding-top: 80px;
     z-index: 1000;
-    transition: all 0.4s ease; /* 0.4秒かけて滑らかに動く */
+    transition: all 0.4s ease; /* 滑らかアニメーション */
 }
 
-/* メニューが開いた時の状態 */
+/* ★マウスをあてた時（ホバー）の処理★ */
+/* ボタンにマウスを乗せている間、メニューを出す */
+.menu-btn:hover ~ #menu-content,
+#menu-content:hover {
+    left: 0;
+}
+
+/* ★クリックした時（JS用）の処理★ */
 #menu-content.open {
-    left: 0; /* 左端を0にすることで画面内に出てくる */
+    left: 0;
 }
 
 #menu-content a {
     display: block;
-    padding: 15px;
+    padding: 20px;
     color: white;
     text-decoration: none;
     font-size: 18px;
-    border-bottom: 1px solid #444;
-}
-
-/* ボタンにマウスを乗せた時にメニューを開く */
-.menu-btn:hover + #menu-content,
-#menu-content:hover {
-    left: 0;
+    border-bottom: 1px solid #333;
 }
