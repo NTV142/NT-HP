@@ -10,85 +10,47 @@
     <meta name="description" content="インフルエンサーNTの公式ホームページです。">
 
     <style>
-        /* --- 基本設定 --- */
-        body { font-family: sans-serif; margin: 0; padding-top: 80px; background-color: #f9f9f9; }
-        h1 { font-size: 5vw; text-align: center; }
-
-        /* --- ナビゲーション全体の親 --- */
-        .nav-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-            width: 60px;
-            height: 100px;
+        /* --- 背景パターンの設定 --- */
+        
+        /* 1. グラデーション背景（デフォルト） */
+        body { 
+            font-family: sans-serif; 
+            margin: 0; 
+            padding-top: 80px; 
+            background: linear-gradient(135deg, #FE027F 0%, #ff5e98 100%); /* メインカラーのグラデ */
+            background-attachment: fixed;
+            min-height: 100vh;
         }
 
-        /* 三本線ボタン */
-        .menu-btn {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            width: 45px;
-            height: 45px;
-            background: #333;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            z-index: 1002;
+        /* 2. グリーンバック（このクラスをbodyにつけると切り替わります） */
+        body.green-back {
+            background: #00FF00 !important;
         }
 
-        .menu-btn span {
-            display: block;
-            width: 25px;
-            height: 3px;
-            background: white;
-            margin: 3px 0;
-            border-radius: 2px;
+        /* --- 文字のフチ取り設定 --- */
+        h1 { 
+            font-size: 8vw; 
+            text-align: center; 
+            color: #FE027F; /* 中の色 */
+            /* 白いフチ取り */
+            text-shadow: 
+                2px 2px 0 #fff, -2px 2px 0 #fff,
+                2px -2px 0 #fff, -2px -2px 0 #fff,
+                0px 2px 0 #fff,  0px -2px 0 #fff,
+                2px 0px 0 #fff, -2px 0px 0 #fff;
         }
 
-        /* 隠れているメニュー */
-        #menu-content {
-            position: fixed;
-            top: 0;
-            left: -250px;
-            width: 220px;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.95);
-            padding-top: 80px;
-            transition: all 0.4s ease;
-            z-index: 1001;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
-        }
+        /* --- ナビゲーション --- */
+        .nav-container { position: fixed; top: 0; left: 0; z-index: 1000; width: 60px; height: 100px; }
+        .menu-btn { position: absolute; top: 15px; left: 15px; width: 45px; height: 45px; background: #333; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; z-index: 1002; }
+        .menu-btn span { display: block; width: 25px; height: 3px; background: white; margin: 3px 0; border-radius: 2px; }
+        #menu-content { position: fixed; top: 0; left: -250px; width: 220px; height: 100vh; background: rgba(0, 0, 0, 0.95); padding-top: 80px; transition: all 0.4s ease; z-index: 1001; box-shadow: 2px 0 10px rgba(0,0,0,0.5); }
+        .nav-container:hover #menu-content { left: 0; }
+        #menu-content.open { left: 0; }
+        #menu-content a { display: block; padding: 20px; color: white; text-decoration: none; font-size: 18px; border-bottom: 1px solid #333; cursor: pointer; }
 
-        /* マウスを乗せたら表示 */
-        .nav-container:hover #menu-content {
-            left: 0;
-        }
-
-        /* スマホ・クリック用 */
-        #menu-content.open {
-            left: 0;
-        }
-
-        #menu-content a {
-            display: block;
-            padding: 20px;
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-            border-bottom: 1px solid #333;
-        }
-
-        #menu-content a:hover {
-            background: #444;
-        }
-
-        /* --- SNSリンク用CSS --- */
-        .koutyou-img { display: block; margin: 20px auto; width: 80%; max-width: 300px; height: auto; border-radius: 15px; }
+        /* --- 画像・SNSリンク --- */
+        .koutyou-img { display: block; margin: 20px auto; width: 80%; max-width: 300px; height: auto; border-radius: 15px; border: 3px solid white; }
         .sns-row { display: flex; width: 100%; margin: 10px 0; justify-content: center; }
         .sns-row a { flex-grow: 1; text-align: center; }
         .sns-row img { width: 90%; height: auto; max-width: 120px; transition: transform 0.2s; }
@@ -96,7 +58,7 @@
     </style>
 </head>
 
-<body>
+<body id="mainBody">
 
     <div class="nav-container">
         <div class="menu-btn" onclick="toggleMenu()">
@@ -108,11 +70,15 @@
         <nav id="menu-content">
             <a href="index.html">ホーム</a>
             <a href="gallery.html">ギャラリー</a>
+            <a onclick="changeBg('pink')">ピンクグラデ</a>
+            <a onclick="changeBg('green')">グリーンバック</a>
         </nav>
     </div>
 
     <h1>SNSのリンク集<br>フォローよろしく！</h1>
 
+    <a href='https://www.metro.ed.jp/kuramaekoka-h/'>
+        <img src='koutyou.jpg' class='koutyou-img' alt="画像1">
     </a>
     <img src='NT.png' class='koutyou-img' alt="画像2">
 
@@ -123,14 +89,24 @@
 
     <div class="sns-row">
         <a href='https://twitter.com/NTV142'><img src='③X.png' alt='X'></a>
-        <a href='https://www.twitch.tv/ntsanch'><img src='④Instagram.png' alt='Twitch 1'></a>
-        <a href='https://www.twitch.tv/ntsanch'><img src='⑤Twitch.png' alt='Twitch 2'></a>
+        <a href='https://www.twitch.tv/ntsanch'><img src='④Instagram.png' alt='Instagram'></a>
+        <a href='https://www.twitch.tv/ntsanch'><img src='⑤Twitch.png' alt='Twitch'></a>
     </div>
 
     <script>
         function toggleMenu() {
             const menu = document.getElementById('menu-content');
             menu.classList.toggle('open');
+        }
+
+        // 背景切り替え用の関数
+        function changeBg(color) {
+            const body = document.getElementById('mainBody');
+            if (color === 'green') {
+                body.classList.add('green-back');
+            } else {
+                body.classList.remove('green-back');
+            }
         }
     </script>
 
