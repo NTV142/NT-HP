@@ -5,65 +5,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NT-HP ギャラリー</title>
     <style>
-        body { 
-            background: #000; 
-            color: white; 
-            text-align: center; 
-            font-family: sans-serif; 
-            margin: 0;
+        body { background: #f4f4f4; margin: 0; font-family: sans-serif; text-align: center; }
+        h1 { padding: 20px; color: #333; }
+
+        /* スライダー全体の枠 */
+        .slideshow-container {
+            max-width: 800px;
+            position: relative;
+            margin: auto;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* 画像スライド（フェードアニメーション） */
+        .slide {
+            display: none; /* 最初は全て隠す */
+        }
+        .slide img {
+            width: 100%;
+            vertical-align: middle;
+            height: 400px;
+            object-fit: cover; /* 画像のサイズを揃える */
+        }
+
+        /* 下のドットボタンのエリア */
+        .dot-container {
+            text-align: center;
             padding: 20px;
         }
-        
-        /* 画像のスタイル */
-        .single-img {
-            width: 90%;
-            max-width: 500px;
-            height: auto;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(255,255,255,0.2);
-            margin-bottom: 30px;
+        .dot {
+            cursor: pointer;
+            height: 12px;
+            width: 12px;
+            margin: 0 5px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+        .active, .dot:hover {
+            background-color: #ff0050; /* アクティブな時の色（TikTok風） */
         }
 
-        /* ボタンのスタイル */
-        .action-btn {
+        /* フェード効果 */
+        .fade {
+            animation-name: fade;
+            animation-duration: 1.5s;
+        }
+        @keyframes fade {
+            from {opacity: .4} 
+            to {opacity: 1}
+        }
+
+        .back-btn {
             display: inline-block;
-            padding: 15px 40px;
-            background-color: #ff0050; /* TikTok風の赤色 */
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #333;
             color: white;
             text-decoration: none;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 30px;
-            transition: transform 0.2s, background-color 0.2s;
-        }
-
-        .action-btn:hover {
-            transform: scale(1.1);
-            background-color: #ff0070;
-        }
-
-        /* 戻るボタン */
-        .back-link {
-            display: block;
-            margin-top: 50px;
-            color: #aaa;
-            text-decoration: none;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
 
-    <h1>ギャラリー</h1>
+    <h1>NT GALLERY</h1>
 
-    <img src="koutyou.jpg" class="single-img" alt="メイン画像">
+    <div class="slideshow-container">
+        <div class="slide fade"><img src="koutyou.jpg"></div>
+        <div class="slide fade"><img src="NT.png"></div>
+        </div>
 
-    <br>
+    <div class="dot-container">
+        <span class="dot" onclick="currentSlide(1)"></span>
+        <span class="dot" onclick="currentSlide(2)"></span>
+        </div>
 
-    <a href="https://www.tiktok.com/@ntv142" class="action-btn">
-        最新動画をチェック！
-    </a>
+    <a href="index.html" class="back-btn">ホームへ戻る</a>
 
-    <a href="index.html" class="back-link">← ホームへ戻る</a>
+    <script>
+        let slideIndex = 1;
+        let timer;
+        showSlides(slideIndex);
+
+        // 自動スライド開始
+        startTimer();
+
+        function startTimer() {
+            timer = setInterval(function() {
+                plusSlides(1);
+            }, 4000); // 4秒ごとに次へ
+        }
+
+        // 次へ/前への操作用
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+
+        // ドットをクリックした時の操作
+        function currentSlide(n) {
+            clearInterval(timer); // 手動操作したら一旦タイマー停止
+            showSlides(slideIndex = n);
+            startTimer(); // 再開
+        }
+
+        function showSlides(n) {
+            let i;
+            let slides = document.getElementsByClassName("slide");
+            let dots = document.getElementsByClassName("dot");
+            
+            if (n > slides.length) {slideIndex = 1}    
+            if (n < 1) {slideIndex = slides.length}
+            
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";  
+            }
+            for (i = 0; i < dots.length; i++) {
+                dots[i].className = dots[i].className.replace(" active", "");
+            }
+            
+            slides[slideIndex-1].style.display = "block";  
+            dots[slideIndex-1].className += " active";
+        }
+    </script>
 
 </body>
 </html>
