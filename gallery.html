@@ -6,43 +6,14 @@
     <title>NT-HP ギャラリー</title>
     <style>
         body { background: #f4f4f4; margin: 0; font-family: sans-serif; text-align: center; overflow-x: hidden; }
-        h1 { padding: 20px; color: #333; }
+        h1 { padding: 20px; color: #333; margin-top: 50px; }
 
-        /* スライダー全体の枠（窓の役割） */
-        .slideshow-container {
-            max-width: 800px;
-            position: relative;
-            margin: auto;
-            overflow: hidden; /* はみ出た画像を見せなくする */
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            background: #fff;
-        }
-
-        /* 画像を横一列に並べるためのコンテナ */
-        .slide-wrapper {
-            display: flex; /* 横並びにする */
-            transition: transform 0.6s cubic-bezier(0.45, 0, 0.55, 1); /* 滑らかな動き */
-            width: 100%;
-        }
-
-        /* 各スライド */
-        .slide {
-            min-width: 100%; /* 1枚がコンテナと同じ幅になるように固定 */
-            box-sizing: border-box;
-        }
-        
-        .slide img {
-            width: 100%;
-            height: 400px;
-            object-fit: cover;
-            vertical-align: middle;
-        }
-
-        /* 下のドットボタン */
+        /* --- ドットボタンを画像の上に配置 --- */
         .dot-container {
             text-align: center;
-            padding: 20px;
+            padding: 10px;
+            position: relative;
+            z-index: 10;
         }
         .dot {
             cursor: pointer;
@@ -59,14 +30,46 @@
             transform: scale(1.3);
         }
 
+        /* --- スライダー全体の枠 --- */
+        .slideshow-container {
+            max-width: 90%; /* スマホで見やすいように調整 */
+            position: relative;
+            margin: auto;
+            overflow: hidden; 
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            background: #fff;
+            /* ★高さが自動で変わるように設定★ */
+            transition: height 0.5s ease; 
+        }
+
+        .slide-wrapper {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.45, 0, 0.55, 1);
+            width: 100%;
+            align-items: flex-start; /* 上揃えにして高さを可変にする */
+        }
+
+        .slide {
+            min-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .slide img {
+            width: 100%;
+            height: auto; /* ★画像の本来の高さにする★ */
+            display: block;
+        }
+
         .back-btn {
             display: inline-block;
-            margin-top: 20px;
+            margin-top: 30px;
             padding: 12px 24px;
             background: #333;
             color: white;
             text-decoration: none;
             border-radius: 5px;
+            margin-bottom: 50px;
         }
     </style>
 </head>
@@ -74,16 +77,16 @@
 
     <h1>NT GALLERY</h1>
 
-    <div class="slideshow-container">
-        <div class="slide-wrapper" id="slideWrapper">
-            <div class="slide"><img src="koutyou.jpg" alt="1"></div>
-            <div class="slide"><img src="NT.png" alt="2"></div>
-            </div>
-    </div>
-
     <div class="dot-container">
         <span class="dot" onclick="currentSlide(1)"></span>
         <span class="dot" onclick="currentSlide(2)"></span>
+    </div>
+
+    <div class="slideshow-container" id="container">
+        <div class="slide-wrapper" id="slideWrapper">
+            <div class="slide"><img src="koutyou.jpg" id="img1"></div>
+            <div class="slide"><img src="NT.png" id="img2"></div>
+        </div>
     </div>
 
     <a href="index.html" class="back-btn">ホームへ戻る</a>
@@ -92,21 +95,20 @@
         let slideIndex = 1;
         let timer;
         const wrapper = document.getElementById('slideWrapper');
-        const slides = document.getElementsByClassName("slide");
+        const container = document.getElementById('container');
         const dots = document.getElementsByClassName("dot");
 
-        showSlides(slideIndex);
-        startTimer();
+        // 最初の表示
+        window.onload = () => {
+            updateHeight();
+            startTimer();
+        };
 
         function startTimer() {
-            timer = setInterval(() => {
-                plusSlides(1);
-            }, 4000);
+            timer = setInterval(() => { plusSlides(1); }, 4000);
         }
 
-        function plusSlides(n) {
-            showSlides(slideIndex += n);
-        }
+        function plusSlides(n) { showSlides(slideIndex += n); }
 
         function currentSlide(n) {
             clearInterval(timer);
@@ -115,19 +117,34 @@
         }
 
         function showSlides(n) {
+            const slides = document.getElementsByClassName("slide");
             if (n > slides.length) {slideIndex = 1}    
             if (n < 1) {slideIndex = slides.length}
             
-            // ★ここが重要：横にずらす計算★
-            // 1枚目なら 0%、2枚目なら -100% 動かす
+            // スライド移動
             let translateValue = -(slideIndex - 1) * 100;
             wrapper.style.transform = `translateX(${translateValue}%)`;
             
+            // ★高さの自動更新★
+            updateHeight();
+
             // ドットの更新
             for (let i = 0; i < dots.length; i++) {
                 dots[i].className = dots[i].className.replace(" active", "");
             }
             dots[slideIndex-1].className += " active";
+        }
+
+        // 現在表示されている画像に合わせて枠の高さを変える関数
+        function updateHeight() {
+            const currentImg = document.getElementsByClassName("slide")[slideIndex-1].getElementsByTagName("img")[0];
+            if (currentImg.complete) {
+                container.style.height = currentImg.clientHeight + "px";
+            } else {
+                currentImg.onload = () => {
+                    container.style.height = currentImg.clientHeight + "px";
+                };
+            }
         }
     </script>
 
