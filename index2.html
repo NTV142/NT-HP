@@ -1,3 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文字サイズ自動調整</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .responsive-text {
+            /* 画面横幅の8%の大きさに自動調整 */
+            font-size: 8vw; 
+            font-weight: bold;
+            color: #FE027F;
+            text-align: center;
+        }
+
+        /* 画面が大きくなりすぎた時の上限設定（任意） */
+        @media (min-width: 1200px) {
+            .responsive-text {
+                font-size: 96px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="responsive-text">
 1か月20GBしかなくて、最初の2週間で<br>
 データー通信制限されてしまう人向け<br>
 ～テキストだけの神!?サイト～<br>
@@ -19,3 +54,7 @@ Twitchのアーカイブを、切り抜き投稿までの限定公開で、公�
 ※すべてのリンクは、<br>
 「URL短縮サービス X.gd」を<br>
 利用しています。<br>
+    </div>
+
+</body>
+</html>
