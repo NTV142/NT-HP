@@ -95,12 +95,44 @@
 
     <br><br><br><br><br>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文字サイズ自動調整</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .responsive-text {
+            /* 画面横幅の8%の大きさに自動調整 */
+            font-size: 8vw; 
+            font-weight: bold;
+            color: #FE027F;
+            text-align: center;
+        }
+
+        /* 画面が大きくなりすぎた時の上限設定（任意） */
+        @media (min-width: 1200px) {
+            .responsive-text {
+                font-size: 96px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="responsive-text">
     Twitchのアーカイブを、切り抜き投稿までの限定公開で、公開します!!<br>
     ※チャンネルトップに表示していない意図として、無言の時間や、<br>
     同じ様な画をできるだけ埋めたくないからです!?<br>
     限定リンクは、
     <a href="https://www.youtube.com/playlist?list=PLDo9uOgcc1BaxZ-Emm1EBLV_-EyeLj26f">こちら</a>
-    
+    </div>
+
     <script>
         function toggleMenu() {
             const menu = document.getElementById('menu-content');
