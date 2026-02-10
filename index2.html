@@ -1,122 +1,62 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="NT.ico" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    
-    <title>NT-HP | NT公式リンク集</title>
-    <meta name="description" content="インフルエンサーNTの公式ホームページです。">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>軽量版NT公式サイト</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
 
-    <style>
-        /* --- 背景パターンの設定 --- */
-        
-        /* 1. グラデーション背景（デフォルト） */
-        body { 
-            font-family: sans-serif; 
-            margin: 0; 
-            padding-top: 80px; 
-            background: linear-gradient(135deg, #FE027F 0%, #ff5e98 100%); /* メインカラーのグラデ */
-            background-attachment: fixed;
-            min-height: 100vh;
-        }
+        .responsive-text {
+            /* 画面横幅の8%の大きさに自動調整 */
+            font-size: 8vw; 
+            font-weight: bold;
+            color: #FE027F;
+            text-align: center;
+        }
 
-        /* 2. グリーンバック（このクラスをbodyにつけると切り替わります） */
-        body.green-back {
-            background: #00FF00 !important;
-        }
-
-        /* --- 文字のフチ取り設定 --- */
-        h1 { 
-            font-size: 8vw; 
-            text-align: center; 
-            color: #FE027F; /* 中の色 */
-            /* 白いフチ取り */
-            text-shadow: 
-                2px 2px 0 #fff, -2px 2px 0 #fff,
-                2px -2px 0 #fff, -2px -2px 0 #fff,
-                0px 2px 0 #fff,  0px -2px 0 #fff,
-                2px 0px 0 #fff, -2px 0px 0 #fff;
-        }
-
-        /* --- ナビゲーション --- */
-        .nav-container { position: fixed; top: 0; left: 0; z-index: 1000; width: 60px; height: 100px; }
-        .menu-btn { position: absolute; top: 15px; left: 15px; width: 45px; height: 45px; background: #333; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; z-index: 1002; }
-        .menu-btn span { display: block; width: 25px; height: 3px; background: white; margin: 3px 0; border-radius: 2px; }
-        #menu-content { position: fixed; top: 0; left: -250px; width: 220px; height: 100vh; background: rgba(0, 0, 0, 0.95); padding-top: 80px; transition: all 0.4s ease; z-index: 1001; box-shadow: 2px 0 10px rgba(0,0,0,0.5); }
-        .nav-container:hover #menu-content { left: 0; }
-        #menu-content.open { left: 0; }
-        #menu-content a { display: block; padding: 20px; color: white; text-decoration: none; font-size: 18px; border-bottom: 1px solid #333; cursor: pointer; }
-
-        /* --- 画像・SNSリンク --- */
-        .koutyou-img { display: block; margin: 20px auto; width: 80%; max-width: 300px; height: auto; border-radius: 15px; border: 3px solid white; }
-        .sns-row { display: flex; width: 100%; margin: 10px 0; justify-content: center; }
-        .sns-row a { flex-grow: 1; text-align: center; }
-        .sns-row img { width: 90%; height: auto; max-width: 120px; transition: transform 0.2s; }
-        .sns-row img:hover { transform: scale(1.1); }
-    </style>
+        /* 画面が大きくなりすぎた時の上限設定（任意） */
+        @media (min-width: 50px) {
+            .responsive-text {
+                font-size: 20px;
+            }
+        }
+    </style>
 </head>
+<body>
 
-<body id="mainBody">
-
-    <div class="nav-container">
-        <div class="menu-btn" onclick="toggleMenu()">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-
-        <nav id="menu-content">
-            <a href="index.html">ホーム</a>
-            <a href="gallery.html">ギャラリー</a>
-            <a onclick="changeBg('pink')">ピンクグラデ</a>
-            <a onclick="changeBg('green')">グリーンバック</a>
-        </nav>
-    </div>
-
-    <h1>SNSのリンク集<br>フォローよろしく！</h1>
-
-    <a href='https://www.metro.ed.jp/kuramaekoka-h/'>
-        <img src='koutyou.jpg' class='koutyou-img' alt="画像1">
-    </a>
-    <img src='NT.png' class='koutyou-img' alt="画像2">
-
-    <div class="sns-row">
-        <a href='https://www.tiktok.com/@ntv142'><img src='①TikTok.png' alt='TikTok'></a>
-        <a href='https://www.youtube.com/@ntv142'><img src='②YouTube.png' alt='YouTube'></a>
-    </div>
-
-    <div class="sns-row">
-        <a href='https://twitter.com/NTV142'><img src='③X.png' alt='X'></a>
-        <a href='https://www.twitch.tv/ntsanch'><img src='④Instagram.png' alt='Instagram'></a>
-        <a href='https://www.twitch.tv/ntsanch'><img src='⑤Twitch.png' alt='Twitch'></a>
-    </div>
-
-    <br><br><br><br><br>
-
-    Twitchのアーカイブを、切り抜き投稿までの限定公開で、公開します!!<br>
-    ※チャンネルトップに表示していない意図として、無言の時間や、<br>
-    同じ様な画をできるだけ埋めたくないからです!?<br>
-    限定リンクは、
-    <a href="https://www.youtube.com/playlist?list=PLDo9uOgcc1BaxZ-Emm1EBLV_-EyeLj26f">こちら</a>
-    
-    <script>
-        function toggleMenu() {
-            const menu = document.getElementById('menu-content');
-            menu.classList.toggle('open');
-        }
-
-        // 背景切り替え用の関数
-        function changeBg(color) {
-            const body = document.getElementById('mainBody');
-            if (color === 'green') {
-                body.classList.add('green-back');
-            } else {
-                body.classList.remove('green-back');
-            }
-        }
-    </script>
+    <div class="responsive-text">
+1か月20GBしかなくて、最初の2週間で<br>
+データー通信制限されてしまう人向け<br>
+～テキストだけの神!?サイト～<br>
+<br>
+基本一緒の画像有サイトはこちら→https://x.gd/D7Q62
+<br><br>
+SNSのリンク集 フォローよろしく！
+<br><br>
+NTの公式TikTokはこちら→https://x.gd/dzPZk<br>
+NTの公式YouTubeはこちら→https://x.gd/9FRgi<br>
+NTの公式Xはこちら→https://x.gd/R3hED<br>
+NTの公式Instagramはこちら→<br>
+NTの公式はTwitchこちら→https://x.gd/7HGeN<br>
+Twitchアーカイブはこちら→https://x.gd/6ojq2<br>
+Twitchのアーカイブを、切り抜き投稿までの<br>
+限定公開で、公開します!!<br>
+※チャンネルトップに表示していない意図として、<br>
+無言の時間や、同じ様な画で、可能な限り、<br>
+埋めたくないからです!?<br>
+<br>
+※すべてのリンクは、<br>
+「URL短縮サービス X.gd」を<br>
+利用しています。<br>
+    </div>
 
 </body>
 </html>
