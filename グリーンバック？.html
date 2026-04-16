@@ -14,23 +14,19 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
     canvas { width: 100%; height: 100%; object-fit: contain; }
     video { display: none; }
     
-    /* ボタン類 */
-    .controls {
-      position: absolute;
-      z-index: 10;
-      display: flex;
-      gap: 10px;
-    }
+    .controls { position: absolute; z-index: 10; }
     button {
       padding: 12px 20px;
       cursor: pointer;
-      border: none;
       border-radius: 5px;
-      background: rgba(255,255,255,0.8);
+      border: none;
+      background: #fff;
+      font-weight: bold;
     }
     #fs_btn {
       position: absolute;
@@ -38,20 +34,21 @@
       right: 10px;
       padding: 8px 12px;
       font-size: 12px;
+      opacity: 0.7;
     }
   </style>
 </head>
 <body>
 
 <div class="video-container" id="main_view">
-  <div class="controls" id="ui_layer">
-    <button id="start_btn">映像解析を開始</button>
+  <div class="controls">
+    <button id="start_btn">カメラを起動して解析開始</button>
   </div>
   <canvas id="output_canvas"></canvas>
   <button id="fs_btn" style="display:none;">全画面</button>
 </div>
 
-<video id="input_video" src="video.mp4" loop muted playsinline></video>
+<video id="input_video" playsinline></video>
 
 <script type="module">
   const video = document.getElementById('input_video');
@@ -71,33 +68,46 @@
     canvas.height = results.image.height;
     ctx.save();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // マスク描画
     ctx.drawImage(results.segmentationMask, 0, 0, canvas.width, canvas.height);
+    
+    // 背景を緑に
     ctx.globalCompositeOperation = 'source-out';
     ctx.fillStyle = '#00FF00';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // 人物を描画
     ctx.globalCompositeOperation = 'destination-atop';
     ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
     ctx.restore();
   });
 
-  async function predict() {
-    if(!video.paused) {
-      await selfieSegmentation.send({image: video});
+  async function startCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+      video.srcObject = stream;
+      await video.play();
+      
+      startBtn.style.display = 'none';
+      fsBtn.style.display = 'block';
+      
+      predict();
+    } catch (err) {
+      alert("カメラの起動に失敗しました: " + err);
     }
+  }
+
+  async function predict() {
+    await selfieSegmentation.send({image: video});
     requestAnimationFrame(predict);
   }
 
-  startBtn.addEventListener('click', () => {
-    video.play();
-    startBtn.style.display = 'none';
-    fsBtn.style.display = 'block';
-    predict();
-  });
+  startBtn.addEventListener('click', startCamera);
 
-  // 全画面切り替え
   fsBtn.addEventListener('click', () => {
     if (!document.fullscreenElement) {
-      container.requestFullscreen();
+      container.requestFullscreen().catch(err => alert(err.message));
     } else {
       document.exitFullscreen();
     }
