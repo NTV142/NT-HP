@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Scanner</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <style>
+        #preview { width: 100%; max-width: 400px; border: 1px solid #ccc; }
+        .log-item { border-bottom: 1px solid #eee; padding: 5px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h3>QR連続スキャン</h3>
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" hidden></canvas>
+    <div id="result-list"></div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const list = document.getElementById('result-list');
+        let lastCode = "";
+
+        // カメラ起動
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(stream => { video.srcObject = stream; requestAnimationFrame(tick); });
+
+        function tick() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.height = video.videoHeight;
+                canvas.width = video.videoWidth;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                if (code && code.data !== lastCode) {
+                    lastCode = code.data;
+                    addLog(code.data);
+                    // 1秒間だけ重複読み取りを防止
+                    setTimeout(() => { lastCode = ""; }, 1000);
+                }
+            }
+            requestAnimationFrame(tick);
+        }
+
+        function addLog(text) {
+            const div = document.createElement('div');
+            div.className = 'log-item';
+            // 改行を分割して表示
+            const lines = text.split('\n');
+            div.innerHTML = `<strong>${lines[0] || ""}</strong><br>${lines[1] || ""}`;
+            list.prepend(div);
+        }
+    </script>
+</body>
+</html>
