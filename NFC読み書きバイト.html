@@ -3,62 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFC Regi System</title>
+    <title>NFC Regi System Pro</title>
     <style>
         :root {
-            --bg: #f5f5f5;
+            --bg: #f8f9fa;
             --accent: #007bff;
             --text: #333;
+            --white: #ffffff;
         }
-        body { font-family: sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+        body { font-family: sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 80px; }
         
-        /* タブUI */
-        .tabs { display: flex; background: #ddd; position: sticky; top: 0; z-index: 100; }
-        .tab-btn { flex: 1; padding: 15px; border: none; background: none; cursor: pointer; font-weight: bold; font-size: 0.9em; }
-        .tab-btn.active { background: #fff; border-bottom: 4px solid var(--accent); color: var(--accent); }
+        /* タブ */
+        .tabs { display: flex; background: #eee; position: sticky; top: 0; z-index: 10; }
+        .tab-btn { flex: 1; padding: 15px; border: none; background: none; cursor: pointer; font-weight: bold; }
+        .tab-btn.active { background: var(--white); border-bottom: 4px solid var(--accent); color: var(--accent); }
         
         .container { padding: 15px; max-width: 500px; margin: auto; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* 読み取り・表示セクション */
-        .product-view { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .product-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: #eee; display: block; }
+        /* メイン表示 */
+        .product-view { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        .product-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: #ddd; display: block; }
         .product-info { padding: 15px; text-align: center; }
-        .product-info h2 { margin: 10px 0; font-size: 1.4em; }
-        .price-tag { font-size: 1.8em; color: #e91e63; font-weight: bold; }
-        
-        /* 履歴テーブル */
-        .history-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; }
-        .history-table th, .history-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        .history-table th { background: #fafafa; font-size: 0.8em; color: #777; }
-        .total-row { font-weight: bold; font-size: 1.2em; background: #fdfdfd; }
-        
-        /* 書き込みセクション */
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 0.8em; margin-bottom: 5px; color: #666; }
-        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 6px; background: var(--accent); color: #fff; font-size: 1em; font-weight: bold; cursor: pointer; }
-        .safety-note { font-size: 0.75em; color: #d9534f; background: #f9ebeb; padding: 10px; border-radius: 4px; margin-top: 10px; }
+        .price-tag { font-size: 2em; color: #e91e63; font-weight: bold; }
 
-        .scan-status { text-align: center; margin: 10px 0; font-weight: bold; color: var(--accent); }
+        /* テーブル */
+        .history-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 8px; overflow: hidden; font-size: 0.9em; }
+        .history-table th, .history-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        .total-row { font-weight: bold; background: #fafafa; font-size: 1.1em; }
+
+        /* 下部固定ボタン */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; padding: 10px; background: var(--white); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); gap: 10px; }
+        .btn-main { flex: 4; padding: 15px; border: none; border-radius: 8px; background: var(--accent); color: #fff; font-size: 1.1em; font-weight: bold; cursor: pointer; }
+        .btn-sub { flex: 1; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background: #fdfdfd; font-size: 1.2em; cursor: pointer; }
+
+        /* 設定ポップアップ (Modal) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: var(--white); padding: 25px; border-radius: 15px; width: 85%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-content h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .setting-item { margin: 20px 0; }
+        .btn-danger { color: #d9534f; border: 1px solid #d9534f; background: none; padding: 8px; border-radius: 5px; width: 100%; cursor: pointer; }
+        .close-btn { background: #eee; border: none; padding: 10px; width: 100%; border-radius: 5px; margin-top: 15px; cursor: pointer; }
+
+        /* フォーム */
+        .form-group { margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .status-msg { text-align: center; margin-bottom: 10px; color: var(--accent); font-weight: bold; height: 1.2em; }
     </style>
 </head>
 <body>
 
 <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('read-tab')">レジ・履歴</button>
-    <button class="tab-btn" onclick="switchTab('write-tab')">書き込み</button>
+    <button class="tab-btn" onclick="switchTab('write-tab')">タグ作成</button>
 </div>
 
 <div class="container">
-    <!-- 読み取り・履歴タブ -->
     <div id="read-tab" class="tab-content active">
-        <button id="scanBtn" class="btn" style="margin-bottom: 15px;">スキャン開始</button>
-        <div id="statusMsg" class="scan-status"></div>
-
+        <div id="statusMsg" class="status-msg"></div>
         <div class="product-view">
-            <img id="dispImg" class="product-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3Crect width='100%25' height='100%25' fill='%23eee'/%3E%3C/svg%3E" alt="商品画像">
+            <img id="dispImg" class="product-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3Crect width='100%25' height='100%25' fill='%23eee'/%3E%3C/svg%3E">
             <div class="product-info">
                 <h2 id="dispName">スキャン待ち...</h2>
                 <div id="dispPrice" class="price-tag">¥0</div>
@@ -66,46 +71,54 @@
         </div>
 
         <table class="history-table">
-            <thead>
-                <tr><th>商品名</th><th>価格</th></tr>
-            </thead>
             <tbody id="historyBody"></tbody>
             <tfoot>
-                <tr class="total-row">
-                    <td>合計</td>
-                    <td id="totalVal">¥0</td>
-                </tr>
+                <tr class="total-row"><td>合計</td><td id="totalVal" style="text-align:right;">¥0</td></tr>
             </tfoot>
         </table>
-        <p style="text-align:right;"><small onclick="localStorage.clear(); location.reload();" style="color:#999; cursor:pointer;">履歴リセット</small></p>
     </div>
 
-    <!-- 書き込みタブ -->
     <div id="write-tab" class="tab-content">
-        <div class="form-group">
-            <label>商品名 (約10文字)</label>
-            <input type="text" id="wName" placeholder="例：特製ラーメン">
-        </div>
-        <div class="form-group">
-            <label>価格 (約4桁)</label>
-            <input type="number" id="wPrice" placeholder="例：1200">
-        </div>
-        <button id="writeBtn" class="btn">NFCタグに書き込む</button>
-        <div class="safety-note">
-            【安全仕様】Lock命令やMake Read-Only命令はコードに含まれていません。何度でも上書き可能です。
-        </div>
+        <h3>商品タグ作成</h3>
+        <div class="form-group"><label>商品名</label><input type="text" id="wName"></div>
+        <div class="form-group"><label>価格</label><input type="number" id="wPrice"></div>
+        <button class="btn-main" style="width:100%" onclick="writeTag()">NFCに書き込む</button>
     </div>
 </div>
 
-<audio id="sound" src="paypay.mp3"></audio>
+<div class="bottom-nav">
+    <button class="btn-main" onclick="startNfcScan()">スキャン開始</button>
+    <button class="btn-sub" onclick="toggleModal(true)">⚙️</button>
+</div>
+
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <h3>設定</h3>
+        <div class="setting-item">
+            <label>決済音を選択:</label><br>
+            <select id="soundSelect" style="width:100%; padding:10px; margin-top:5px;">
+                <option value="paypay.mp3">PayPay</option>
+                <option value="SanSanVoice.mp3">SanSanVoice</option>
+            </select>
+        </div>
+        <div class="setting-item">
+            <button class="btn-sub" style="width:100%; font-size:1em;" onclick="simulateScan()">[テスト] ダミー読込</button>
+        </div>
+        <div class="setting-item">
+            <button class="btn-danger" onclick="resetApp()">履歴リセット</button>
+        </div>
+        <button class="close-btn" onclick="toggleModal(false)">閉じる</button>
+    </div>
+</div>
+
+<audio id="soundPlayer"></audio>
 
 <script>
     let total = 0;
     let pendingItem = null;
     let isWaitingConfirm = false;
-    const sound = document.getElementById('sound');
 
-    // タブ切り替え
+    // タブ
     function switchTab(id) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -113,78 +126,87 @@
         event.currentTarget.classList.add('active');
     }
 
-    // スキャン機能
-    document.getElementById('scanBtn').addEventListener('click', async () => {
-        if (!('NDEFReader' in window)) {
-            alert("このブラウザはWeb NFCに対応していません。");
-            return;
-        }
+    // 設定ポップアップ
+    function toggleModal(show) {
+        document.getElementById('settingsModal').style.display = show ? 'flex' : 'none';
+    }
+
+    // NFCスキャン
+    async function startNfcScan() {
+        if (!('NDEFReader' in window)) return alert("Web NFC非対応です");
         try {
             const ndef = new NDEFReader();
             await ndef.scan();
-            document.getElementById('statusMsg').innerText = "NFCをスキャンしてください...";
-            document.getElementById('scanBtn').style.display = "none";
-
+            document.getElementById('statusMsg').innerText = "かざしてください...";
             ndef.onreading = event => {
                 if (isWaitingConfirm) return;
                 const decoder = new TextDecoder();
                 for (const record of event.message.records) {
                     const text = decoder.decode(record.data);
-                    const lines = text.split(/\r?\n/);
-                    const name = lines[0] || "不明な商品";
-                    const price = parseInt(lines[1]) || 0;
-
-                    // 表示更新
-                    document.getElementById('dispName').innerText = name;
-                    document.getElementById('dispPrice').innerText = "¥" + price.toLocaleString();
-                    // 1:1の画像を生成（プレースホルダ）
-                    document.getElementById('dispImg').src = `https://placehold.jp/100/007bff/ffffff/400x400.png?text=${encodeURIComponent(name)}`;
-                    
-                    pendingItem = { name, price };
-                    isWaitingConfirm = true;
-                    document.getElementById('statusMsg').innerText = "音量ボタン(上)で確定";
+                    processScanData(text);
                 }
             };
-        } catch (e) { alert("エラー: " + e); }
-    });
+        } catch (e) { alert("NFC失敗: " + e); }
+    }
 
-    // 音量ボタンで確定
+    // 読み込み処理共通
+    function processScanData(text) {
+        const lines = text.split(/\r?\n/);
+        const name = lines[0] || "不明";
+        const price = parseInt(lines[1]) || 0;
+        document.getElementById('dispName').innerText = name;
+        document.getElementById('dispPrice').innerText = "¥" + price.toLocaleString();
+        document.getElementById('dispImg').src = `https://placehold.jp/100/007bff/ffffff/400x400.png?text=${encodeURIComponent(name)}`;
+        pendingItem = { name, price };
+        isWaitingConfirm = true;
+        document.getElementById('statusMsg').innerText = "音量ボタン(上)で確定";
+    }
+
+    // テスト用シミュレーター
+    function simulateScan() {
+        toggleModal(false);
+        processScanData("テスト商品\n500");
+    }
+
+    // 確定処理 (音量ボタン)
     window.addEventListener('keydown', (e) => {
         if ((e.key === 'ArrowUp' || e.key === 'VolumeUp') && isWaitingConfirm) {
             e.preventDefault();
-            
-            // 履歴に追加
-            const row = `<tr><td>${pendingItem.name}</td><td>¥${pendingItem.price.toLocaleString()}</td></tr>`;
+            const row = `<tr><td>${pendingItem.name}</td><td style="text-align:right;">¥${pendingItem.price.toLocaleString()}</td></tr>`;
             document.getElementById('historyBody').insertAdjacentHTML('beforeend', row);
-            
             total += pendingItem.price;
             document.getElementById('totalVal').innerText = "¥" + total.toLocaleString();
 
-            sound.currentTime = 0;
-            sound.play();
+            const player = document.getElementById('soundPlayer');
+            player.src = document.getElementById('soundSelect').value;
+            player.currentTime = 0;
+            player.play();
 
             isWaitingConfirm = false;
             document.getElementById('statusMsg').innerText = "次の商品をスキャン...";
-            document.getElementById('dispName').innerText = "スキャン待ち...";
-            document.getElementById('dispPrice').innerText = "¥0";
         }
     });
 
-    // 書き込み機能 (安全仕様)
-    document.getElementById('writeBtn').addEventListener('click', async () => {
+    // 書き込み
+    async function writeTag() {
         const name = document.getElementById('wName').value;
         const price = document.getElementById('wPrice').value;
-        if (!name || !price) return alert("入力してください");
-
+        if (!name || !price) return alert("入力不足です");
         try {
             const ndef = new NDEFReader();
-            // 命令は text レコードの write のみ。
-            await ndef.write({
-                records: [{ recordType: "text", data: `${name}\n${price}` }]
-            });
-            alert("書き込み完了！ (上書き可能です)");
+            await ndef.write({ records: [{ recordType: "text", data: `${name}\n${price}` }] });
+            alert("書き込み成功 (上書き可能)");
         } catch (e) { alert("失敗: " + e); }
-    });
+    }
+
+    function resetApp() {
+        if (confirm("履歴をすべて削除しますか？")) {
+            total = 0;
+            document.getElementById('historyBody').innerHTML = "";
+            document.getElementById('totalVal').innerText = "¥0";
+            toggleModal(false);
+        }
+    }
 </script>
 </body>
 </html>
