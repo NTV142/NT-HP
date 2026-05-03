@@ -18,9 +18,9 @@
         .container { padding: 15px; max-width: 500px; margin: auto; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .product-view { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
-        .product-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: #ddd; display: block; }
-        .product-info { padding: 15px; text-align: center; }
+        .product-view { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; cursor: pointer; } /* タップ可能に */
+        .product-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: #ddd; display: block; pointer-events: none; }
+        .product-info { padding: 15px; text-align: center; pointer-events: none; }
         .price-tag { font-size: 2em; color: #e91e63; font-weight: bold; }
         .history-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 8px; overflow: hidden; font-size: 0.9em; }
         .history-table th, .history-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
@@ -42,17 +42,18 @@
 
 <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('read-tab')">レジ・履歴</button>
-    <button class="tab-btn" onclick="switchTab('write-tab')">タグ作成</button>
+    <button class="tab-btn" onclick="switchTab('write-tab')">書き込み</button>
 </div>
 
 <div class="container">
     <div id="read-tab" class="tab-content active">
         <div id="statusMsg" class="status-msg"></div>
-        <div class="product-view">
+        <div class="product-view" id="confirmArea" onclick="manualConfirm()">
             <img id="dispImg" class="product-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3Crect width='100%25' height='100%25' fill='%23eee'/%3E%3C/svg%3E">
             <div class="product-info">
                 <h2 id="dispName">スキャン待ち...</h2>
                 <div id="dispPrice" class="price-tag">¥0</div>
+                <p id="subStatus" style="font-size: 0.8em; color: #999; margin-top: 5px;">（読み取り後、ここを押して確定）</p>
             </div>
         </div>
         <table class="history-table">
@@ -63,7 +64,7 @@
         </table>
     </div>
     <div id="write-tab" class="tab-content">
-        <h3>商品タグ作成</h3>
+        <h3>商品情報の書き込み</h3>
         <div class="form-group"><label>商品名</label><input type="text" id="wName"></div>
         <div class="form-group"><label>価格</label><input type="number" id="wPrice"></div>
         <button class="btn-main" style="width:100%" onclick="writeTag()">NFCに書き込む</button>
@@ -139,35 +140,45 @@
         document.getElementById('dispImg').src = `https://placehold.jp/100/007bff/ffffff/400x400.png?text=${encodeURIComponent(name)}`;
         pendingItem = { name, price };
         isWaitingConfirm = true;
-        document.getElementById('statusMsg').innerText = "音量ボタン(上)で確定";
+        document.getElementById('statusMsg').innerText = "確定させてください";
     }
+
+    // 確定処理の本体
+    function executeConfirm() {
+        if (!isWaitingConfirm) return;
+
+        const row = `<tr><td>${pendingItem.name}</td><td style="text-align:right;">¥${pendingItem.price.toLocaleString()}</td></tr>`;
+        document.getElementById('historyBody').insertAdjacentHTML('beforeend', row);
+        total += pendingItem.price;
+        document.getElementById('totalVal').innerText = "¥" + total.toLocaleString();
+
+        const player = document.getElementById('soundPlayer');
+        player.src = document.getElementById('soundSelect').value;
+        player.load();
+        player.play().catch(err => console.log("再生失敗:", err));
+
+        isWaitingConfirm = false;
+        document.getElementById('statusMsg').innerText = "次の商品をスキャン...";
+    }
+
+    // 画像/画面タップでの確定
+    function manualConfirm() {
+        if (isWaitingConfirm) executeConfirm();
+    }
+
+    // 音量キー判定（残しておきます）
+    window.addEventListener('keydown', (e) => {
+        const isUpKey = e.key === 'ArrowUp' || e.key === 'VolumeUp' || e.key === 'AudioVolumeUp' || e.keyCode === 38;
+        if (isUpKey && isWaitingConfirm) {
+            e.preventDefault(); 
+            executeConfirm();
+        }
+    }, { passive: false });
 
     function simulateScan() {
         toggleModal(false);
         processScanData("テスト商品\n500");
     }
-
-    // 音量キー判定を強化したイベントリスナー
-    window.addEventListener('keydown', (e) => {
-        const isUpKey = e.key === 'ArrowUp' || e.key === 'VolumeUp' || e.key === 'AudioVolumeUp' || e.keyCode === 38;
-
-        if (isUpKey && isWaitingConfirm) {
-            e.preventDefault(); 
-            
-            const row = `<tr><td>${pendingItem.name}</td><td style="text-align:right;">¥${pendingItem.price.toLocaleString()}</td></tr>`;
-            document.getElementById('historyBody').insertAdjacentHTML('beforeend', row);
-            total += pendingItem.price;
-            document.getElementById('totalVal').innerText = "¥" + total.toLocaleString();
-
-            const player = document.getElementById('soundPlayer');
-            player.src = document.getElementById('soundSelect').value;
-            player.load();
-            player.play().catch(err => console.log("再生失敗:", err));
-
-            isWaitingConfirm = false;
-            document.getElementById('statusMsg').innerText = "次の商品をスキャン...";
-        }
-    }, { passive: false });
 
     async function writeTag() {
         const name = document.getElementById('wName').value;
