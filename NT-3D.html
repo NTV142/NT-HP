@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NT-3D Preview</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+        body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f5f5f5; }
+        
+        model-viewer {
+            width: 98vw;
+            background-color: #ffffff;
+            --poster-color: transparent;
+        }
+
+        /* 縦画面 */
+        @media (orientation: portrait) {
+            model-viewer { height: 75vh; }
+        }
+
+        /* 横画面 */
+        @media (orientation: landscape) {
+            model-viewer { height: 90vh; }
+        }
+    </style>
+</head>
+<body>
+
+    <model-viewer 
+        src="NT-3D.glb" 
+        poster="https://ntv142.github.io/NT-HP/NT.2D.jpg"
+        ar 
+        ar-modes="webxr scene-viewer quick-look" 
+        camera-controls 
+        touch-action="pan-y" 
+        shadow-intensity="1"
+        alt="NT-3D Model">
+        
+        <button slot="ar-button" style="background-color: white; border-radius: 6px; border: 1px solid #333; position: absolute; top: 15px; right: 15px; padding: 10px;">
+            ARで見る
+        </button>
+    </model-viewer>
+
+</body>
+</html>
