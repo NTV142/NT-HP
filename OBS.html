@@ -2,318 +2,387 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Multi-Camera Control System</title>
+    <title>Web OBS Studio - Mini</title>
     <style>
         body {
-            font-family: sans-serif;
-            background: #f0f0f0;
-            padding: 10px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #1e1e24;
+            color: #e3e3e6;
+            padding: 15px;
+            margin: 0;
         }
-        #controls {
-            margin-bottom: 10px;
-            padding: 10px;
-            background: #fff;
-            border-radius: 5px;
+        h2 {
+            font-size: 16px;
+            margin: 0 0 10px 0;
+            color: #00bfff;
         }
-        .control-group {
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px dashed #ccc;
-        }
-        .control-group:last-child { border: none; }
-        label {
-            font-size: 13px;
-            font-weight: bold;
-            display: inline-block;
-            margin-right: 5px;
-        }
-        .slider-pack {
-            display: inline-block;
-            margin-right: 15px;
-        }
-        .slider-pack input {
-            width: 80px;
-            vertical-align: middle;
-        }
-        canvas {
-            border: 2px solid #333;
-            background: #FF0080;
-            display: block;
-        }
-        #scene-gallery {
-            margin-top: 15px;
+        #obs-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
+            max-width: 510px;
+            margin: 0 auto;
+        }
+        .panel {
+            background: #2a2a35;
+            border-radius: 6px;
+            padding: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .control-row:last-child {
+            margin-bottom: 0;
+        }
+        label {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        select, input[type="number"] {
+            background: #3a3a4a;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .btn {
+            background: #44475a;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn:hover { background: #575b75; }
+        .btn:disabled { background: #323443; color: #777; cursor: not-allowed; }
+        #start-btn { background: #ff5555; }
+        #start-btn:hover { background: #ff6e6e; }
+        #stop-btn { background: #ffb86c; color: #282a36; }
+        #clone-btn { background: #50fa7b; color: #282a36; }
+        #clone-btn:hover { background: #69ff94; }
+        
+        /* メインキャンバス */
+        canvas {
+            border: 3px solid #111;
+            background: #FF0080;
+            display: block;
+            width: 100%;
+            max-width: 480px;
+            height: auto;
+            margin: 0 auto;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+        }
+        
+        #status {
+            font-size: 11px;
+            color: #a9a9b3;
+            text-align: center;
+            margin-top: 5px;
+        }
+        .tip {
+            font-size: 11px;
+            color: #ff79c6;
+            margin: 4px 0 0 0;
+            text-align: center;
+        }
+
+        /* 複製されたシーン（ソースギャラリー） */
+        #scene-gallery {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
         }
         .captured-scene {
-            border: 2px solid #666;
-            width: 240px;
-            height: 426px;
+            border: 2px solid #444;
+            border-radius: 4px;
+            width: 160px; /* プレビュー用に縮小表示 */
+            height: 284px;
+            background: #000;
         }
     </style>
 </head>
 <body>
 
-    <div id="controls">
-        <div class="control-group">
-            <label for="split-time">間隔(分): </label>
-            <input type="number" id="split-time" value="1" min="1" style="width: 40px;">
-            <button id="start-btn" style="margin-left:10px; font-weight:bold;">録画開始</button>
-            <button id="stop-btn" disabled style="font-weight:bold;">録画停止</button>
-            <button id="clone-btn" style="margin-left:20px; font-weight:bold; background:#007bff; color:#fff; border:none; padding:4px 10px; border-radius:3px; cursor:pointer;">シーンを複製</button>
-            <span id="status" style="font-size:12px; color:#666; margin-left:10px;">カメラを選択してください。</span>
+<div id="obs-container">
+    <div class="panel">
+        <h2>Web OBS コントロールセンター</h2>
+        <div class="control-row">
+            <div>
+                <label for="split-time">分割(分): </label>
+                <input type="number" id="split-time" value="1" min="1" style="width: 35px;">
+            </div>
+            <div>
+                <button id="start-btn" class="btn">録画開始</button>
+                <button id="stop-btn" class="btn" disabled>停止</button>
+                <button id="clone-btn" class="btn">シーンを複製</button>
+            </div>
         </div>
 
-        <div class="control-group">
-            <label for="cam1-select">カメラ1: </label>
-            <select id="cam1-select"><option value="">指定なし</option></select>
-            <div class="slider-pack">
-                <label>ズーム: </label><input type="range" id="cam1-zoom" min="1.0" max="3.0" step="0.1" value="1.0">
+        <div class="control-row">
+            <div>
+                <label for="cam1-select">CAM 1: </label>
+                <select id="cam1-select"><option value="">デバイス検索中...</option></select>
             </div>
-            <span style="font-size:11px; color:#555;">※映像内を1タップで位置移動 / 2タップで比率無視切り替え</span>
-        </div>
-        
-        <div class="control-group">
-            <label for="cam2-select">カメラ2: </label>
-            <select id="cam2-select"><option value="">指定なし</option></select>
-            <div class="slider-pack">
-                <label>ズーム: </label><input type="range" id="cam2-zoom" min="1.0" max="3.0" step="0.1" value="1.0">
+            <div>
+                <label>ズーム: </label>
+                <input type="range" id="cam1-zoom" min="1.0" max="3.0" step="0.1" value="1.0" style="width:70px; vertical-align:middle;">
             </div>
         </div>
+
+        <div class="control-row">
+            <div>
+                <label for="cam2-select">CAM 2: </label>
+                <select id="cam2-select"><option value="">デバイス検索中...</option></select>
+            </div>
+            <div>
+                <label>ズーム: </label>
+                <input type="range" id="cam2-zoom" min="1.0" max="3.0" step="0.1" value="1.0" style="width:70px; vertical-align:middle;">
+            </div>
+        </div>
+        <div id="status">カメラの権限を許可してください。</div>
+        <p class="tip">【操作】映像内を1タップで位置追従 / 2タップで比率無視フィット</p>
     </div>
 
     <canvas id="mainCanvas" width="480" height="852"></canvas>
 
-    <h3 style="margin-top:20px; font-size:14px;">複製されたシーン（履歴）</h3>
-    <div id="scene-gallery"></div>
+    <div class="panel">
+        <h2>複製されたシーン履歴 (最新が上)</h2>
+        <div id="scene-gallery"></div>
+    </div>
+</div>
 
-    <script>
-        const canvas = document.getElementById('mainCanvas');
-        const ctx = canvas.getContext('2d');
-        const gallery = document.getElementById('scene-gallery');
+<script>
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const gallery = document.getElementById('scene-gallery');
 
-        // UI要素
-        const cam1Select = document.getElementById('cam1-select'), cam2Select = document.getElementById('cam2-select');
-        const startBtn = document.getElementById('start-btn'), stopBtn = document.getElementById('stop-btn'), cloneBtn = document.getElementById('clone-btn');
-        const splitInput = document.getElementById('split-time'), statusDiv = document.getElementById('status');
+    const cam1Select = document.getElementById('cam1-select'), cam2Select = document.getElementById('cam2-select');
+    const startBtn = document.getElementById('start-btn'), stopBtn = document.getElementById('stop-btn'), cloneBtn = document.getElementById('clone-btn');
+    const splitInput = document.getElementById('split-time'), statusDiv = document.getElementById('status');
+    const c1Zoom = document.getElementById('cam1-zoom'), c2Zoom = document.getElementById('cam2-zoom');
 
-        const c1Zoom = document.getElementById('cam1-zoom'), c2Zoom = document.getElementById('cam2-zoom');
+    let stream1 = null, stream2 = null;
+    let video1 = document.createElement('video'), video2 = document.createElement('video');
+    video1.muted = true; video1.playsInline = true;
+    video2.muted = true; video2.playsInline = true;
 
-        let stream1 = null, stream2 = null;
-        let video1 = document.createElement('video'), video2 = document.createElement('video');
-        video1.muted = true; video1.playsInline = true;
-        video2.muted = true; video2.playsInline = true;
+    let mediaRecorder = null, recordedChunks = [], splitTimer = null;
 
-        let mediaRecorder = null, recordedChunks = [], splitTimer = null;
+    // 各カメラの位置・クロップ状態
+    let cam1State = { offsetX: 0, offsetY: 0, ignoreAspect: false };
+    let cam2State = { offsetX: 0, offsetY: 0, ignoreAspect: false };
+    let lastTapTime = 0;
 
-        // タップ位置・クロップ状態管理（初期は中心の0, 0 / 比率維持）
-        let cam1State = { offsetX: 0, offsetY: 0, ignoreAspect: false };
-        let cam2State = { offsetX: 0, offsetY: 0, ignoreAspect: false };
-
-        // ダブルタップ判定用のタイマー管理
-        let lastTapTime = 0;
-
-        async function getCameras() {
-            try {
-                await navigator.mediaDevices.getUserMedia({ video: true });
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const videoDevices = devices.filter(d => d.kind === 'videoinput');
-                
-                cam1Select.innerHTML = ''; cam2Select.innerHTML = '';
-                videoDevices.forEach((device, index) => {
-                    const opt1 = document.createElement('option'); opt1.value = device.deviceId; opt1.text = device.label || `カメラ ${index + 1}`;
-                    cam1Select.appendChild(opt1);
-                    const opt2 = document.createElement('option'); opt2.value = device.deviceId; opt2.text = device.label || `カメラ ${index + 1}`;
-                    if(videoDevices.length > 1 && index === 1) opt2.selected = true;
-                    cam2Select.appendChild(opt2);
-                });
-                updateStreams();
-            } catch (err) { statusDiv.innerText = "カメラ取得失敗: " + err.message; }
-        }
-
-        async function updateStreams() {
-            if (stream1) stream1.getTracks().forEach(t => t.stop());
-            if (stream2) stream2.getTracks().forEach(t => t.stop());
-            if (cam1Select.value) { stream1 = await navigator.mediaDevices.getUserMedia({ video: { deviceId: cam1Select.value } }); video1.srcObject = stream1; video1.play(); }
-            if (cam2Select.value) { stream2 = await navigator.mediaDevices.getUserMedia({ video: { deviceId: cam2Select.value } }); video2.srcObject = stream2; video2.play(); }
-        }
-
-        cam1Select.addEventListener('change', updateStreams);
-        cam2Select.addEventListener('change', updateStreams);
-
-        // 秒数を削除したフォーマット
-        function getFormattedDate() {
-            const now = new Date();
-            const yyyy = now.getFullYear();
-            const mm = String(now.getMonth() + 1).padStart(2, '0');
-            const dd = String(now.getDate()).padStart(2, '0');
-            let hh = now.getHours();
-            const min = String(now.getMinutes()).padStart(2, '0');
-            const ampm = hh >= 12 ? '午後' : '午前';
-            hh = hh % 12; hh = hh ? hh : 12;
-            return `${yyyy}年${mm}月${dd}日 ${ampm}${String(hh).padStart(2, '0')}時${min}分`;
-        }
-
-        // カメラ映像の描画処理（比率無視モード付き）
-        function drawCameraVideo(video, dx, dy, dw, dh, zoom, state) {
-            const sw = video.videoWidth;
-            const sh = video.videoHeight;
-            if (!sw || !sh) return;
-
-            // 比率無視（全画面引き伸ばし）クロップ状態
-            if (state.ignoreAspect) {
-                let sWidth = sw / zoom;
-                let sHeight = sh / zoom;
-                let sx = (sw - sWidth) / 2 + (state.offsetX * (sw - sWidth));
-                let sy = (sh - sHeight) / 2 + (state.offsetY * (sh - sHeight));
-                
-                if (sx < 0) sx = 0; if (sx + sWidth > sw) sx = sw - sWidth;
-                if (sy < 0) sy = 0; if (sy + sHeight > sh) sy = sh - sHeight;
-
-                ctx.drawImage(video, sx, sy, sWidth, sHeight, dx, dy, dw, dh);
+    // デバイス（カメラ）の一覧を取得
+    async function getCameras() {
+        try {
+            await navigator.mediaDevices.getUserMedia({ video: true });
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = devices.filter(d => d.kind === 'videoinput');
+            
+            cam1Select.innerHTML = ''; cam2Select.innerHTML = '';
+            if(videoDevices.length === 0) {
+                statusDiv.innerText = "有効なカメラが見つかりません。";
                 return;
             }
 
-            // 通常の最小限16:9クロップ状態
-            const targetAspect = 16 / 9;
-            const currentAspect = sw / sh;
-            let sWidth, sHeight;
+            videoDevices.forEach((device, index) => {
+                const opt1 = document.createElement('option'); opt1.value = device.deviceId; opt1.text = device.label || `Camera ${index + 1}`;
+                cam1Select.appendChild(opt1);
+                const opt2 = document.createElement('option'); opt2.value = device.deviceId; opt2.text = device.label || `Camera ${index + 1}`;
+                if(videoDevices.length > 1 && index === 1) opt2.selected = true;
+                cam2Select.appendChild(opt2);
+            });
+            statusDiv.innerText = "システムスタンバイ";
+            updateStreams();
+        } catch (err) { statusDiv.innerText = "カメラアクセス拒否: " + err.message; }
+    }
 
-            if (currentAspect > targetAspect) {
-                sHeight = sh; sWidth = sh * targetAspect;
-            } else {
-                sWidth = sw; sHeight = sw / targetAspect;
-            }
+    // 解像度指定を省き、スマホ・PC両方で最速でストリームを取得
+    async function updateStreams() {
+        if (stream1) stream1.getTracks().forEach(t => t.stop());
+        if (stream2) stream2.getTracks().forEach(t => t.stop());
+        if (cam1Select.value) { stream1 = await navigator.mediaDevices.getUserMedia({ video: { deviceId: cam1Select.value } }); video1.srcObject = stream1; video1.play().catch(()=>{}); }
+        if (cam2Select.value) { stream2 = await navigator.mediaDevices.getUserMedia({ video: { deviceId: cam2Select.value } }); video2.srcObject = stream2; video2.play().catch(()=>{}); }
+    }
 
-            sWidth = sWidth / zoom;
-            sHeight = sHeight / zoom;
+    cam1Select.addEventListener('change', updateStreams);
+    cam2Select.addEventListener('change', updateStreams);
 
+    // 時刻フォーマット（秒数なし）
+    function getFormattedDate() {
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        let hh = now.getHours();
+        const min = String(now.getMinutes()).padStart(2, '0');
+        const ampm = hh >= 12 ? '午後' : '午前';
+        hh = hh % 12; hh = hh ? hh : 12;
+        return `${yyyy}年${mm}月${dd}日 ${ampm}${String(hh).padStart(2, '0')}時${min}分`;
+    }
+
+    // ビデオ描画エンジン
+    function drawCameraVideo(video, dx, dy, dw, dh, zoom, state) {
+        const sw = video.videoWidth;
+        const sh = video.videoHeight;
+        if (!sw || !sh) return;
+
+        if (state.ignoreAspect) {
+            // 比率無視（引き伸ばしフィット）モード
+            let sWidth = sw / zoom; let sHeight = sh / zoom;
             let sx = (sw - sWidth) / 2 + (state.offsetX * (sw - sWidth));
             let sy = (sh - sHeight) / 2 + (state.offsetY * (sh - sHeight));
-
             if (sx < 0) sx = 0; if (sx + sWidth > sw) sx = sw - sWidth;
             if (sy < 0) sy = 0; if (sy + sHeight > sh) sy = sh - sHeight;
-
             ctx.drawImage(video, sx, sy, sWidth, sHeight, dx, dy, dw, dh);
+            return;
         }
 
-        function draw() {
-            ctx.fillStyle = '#FF0080';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // 通常の16:9最小クロップモード
+        const targetAspect = 16 / 9;
+        const currentAspect = sw / sh;
+        let sWidth, sHeight;
 
-            // 1. 時刻枠 (秒なし)
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-            ctx.fillRect(0, 0, 480, 42);
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 30px monospace';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(getFormattedDate(), 240, 22);
-
-            // 2. カメラ1 (Y=42)
-            if (video1.readyState === video1.HAVE_ENOUGH_DATA) {
-                drawCameraVideo(video1, 0, 42, 480, 270, parseFloat(c1Zoom.value), cam1State);
-            }
-            // 3. カメラ2 (Y=312)
-            if (video2.readyState === video2.HAVE_ENOUGH_DATA) {
-                drawCameraVideo(video2, 0, 312, 480, 270, parseFloat(c2Zoom.value), cam2State);
-            }
-
-            requestAnimationFrame(draw);
+        if (currentAspect > targetAspect) {
+            sHeight = sh; sWidth = sh * targetAspect;
+        } else {
+            sWidth = sw; sHeight = sw / targetAspect;
         }
 
-        // キャンバス上のタップイベント解析（1タップ位置移動 / 2タップ比率切り替え）
-        canvas.addEventListener('click', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const clickY = e.clientY - rect.top;
+        sWidth = sWidth / zoom; sHeight = sHeight / zoom;
+        let sx = (sw - sWidth) / 2 + (state.offsetX * (sw - sWidth));
+        let sy = (sh - sHeight) / 2 + (state.offsetY * (sh - sHeight));
+        if (sx < 0) sx = 0; if (sx + sWidth > sw) sx = sw - sWidth;
+        if (sy < 0) sy = 0; if (sy + sHeight > sh) sy = sh - sHeight;
 
-            let targetState = null;
-            let cameraAreaY = 0;
+        ctx.drawImage(video, sx, sy, sWidth, sHeight, dx, dy, dw, dh);
+    }
 
-            // どちらのカメラの枠内か判定
-            if (clickY >= 42 && clickY <= 312) {
-                targetState = cam1State;
-                cameraAreaY = 42;
-            } else if (clickY >= 312 && clickY <= 582) {
-                targetState = cam2State;
-                cameraAreaY = 312;
-            }
+    // メインレンダリングループ
+    function draw() {
+        ctx.fillStyle = '#FF0080';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            if (!targetState) return;
+        // 1. トップ時間枠（480x42）
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.fillRect(0, 0, 480, 42);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 30px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(getFormattedDate(), 240, 22);
 
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTapTime;
-
-            if (tapLength < 300 && tapLength > 0) {
-                // 【2回連続タップ時】: 比率無視クロップ状態を反転
-                targetState.ignoreAspect = !targetState.ignoreAspect;
-            } else {
-                // 【1回タップ時】: 中心位置をタップされた座標の比率に移動 (-0.5 〜 0.5 の範囲へマッピング)
-                const relativeX = (clickX / 480) - 0.5;
-                const relativeY = ((clickY - cameraAreaY) / 270) - 0.5;
-                targetState.offsetX = relativeX;
-                targetState.offsetY = relativeY;
-            }
-            lastTapTime = currentTime;
-        });
-
-        // ボタンクリックでシーンを複製
-        cloneBtn.addEventListener('click', () => {
-            const img = new Image();
-            img.src = canvas.toDataURL('image/png');
-            img.className = 'captured-scene';
-            gallery.insertBefore(img, gallery.firstChild);
-        });
-
-        function exportVideo() {
-            if (recordedChunks.length === 0) return;
-            const blob = new Blob(recordedChunks, { type: 'video/webm' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const now = new Date();
-            a.href = url;
-            a.download = `rec_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}.webm`;
-            a.click();
-            URL.revokeObjectURL(url);
-            recordedChunks = [];
+        // 2. CAM 1 (Y=42)
+        if (video1.readyState === video1.HAVE_ENOUGH_DATA) {
+            drawCameraVideo(video1, 0, 42, 480, 270, parseFloat(c1Zoom.value), cam1State);
+        }
+        // 3. CAM 2 (Y=312)
+        if (video2.readyState === video2.HAVE_ENOUGH_DATA) {
+            drawCameraVideo(video2, 0, 312, 480, 270, parseFloat(c2Zoom.value), cam2State);
         }
 
-        function startRecording() {
-            const canvasStream = canvas.captureStream(30);
-            let options = { mimeType: 'video/webm;codecs=vp9' };
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) { options = { mimeType: 'video/webm;codecs=vp8' }; }
-
-            mediaRecorder = new MediaRecorder(canvasStream, options);
-            mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
-            mediaRecorder.onstop = () => { exportVideo(); };
-
-            mediaRecorder.start(1000);
-            statusDiv.innerText = "録画中...";
-            startBtn.disabled = true; stopBtn.disabled = false;
-
-            const intervalMs = parseInt(splitInput.value, 10) * 60 * 1000;
-            splitTimer = setInterval(() => {
-                if (mediaRecorder && mediaRecorder.state === "recording") {
-                    mediaRecorder.requestData();
-                    setTimeout(() => { exportVideo(); }, 500);
-                }
-            }, intervalMs);
-        }
-
-        function stopRecording() {
-            clearInterval(splitTimer);
-            if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-            statusDiv.innerText = "録画を停止しました。";
-            startBtn.disabled = false; stopBtn.disabled = true;
-        }
-
-        startBtn.addEventListener('click', startRecording);
-        stopBtn.addEventListener('click', stopRecording);
-
-        getCameras();
         requestAnimationFrame(draw);
-    </script>
+    }
+
+    // ビデオ枠内のタップイベント（位置・クロップ切り替え）
+    canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        // 表示サイズから実ピクセル座標へ変換
+        const clickX = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const clickY = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+        let targetState = null; let cameraAreaY = 0;
+
+        if (clickY >= 42 && clickY <= 312) {
+            targetState = cam1State; cameraAreaY = 42;
+        } else if (clickY >= 312 && clickY <= 582) {
+            targetState = cam2State; cameraAreaY = 312;
+        }
+
+        if (!targetState) return;
+
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTapTime;
+
+        if (tapLength < 300 && tapLength > 0) {
+            targetState.ignoreAspect = !targetState.ignoreAspect;
+        } else {
+            targetState.offsetX = (clickX / 480) - 0.5;
+            targetState.offsetY = ((clickY - cameraAreaY) / 270) - 0.5;
+        }
+        lastTapTime = currentTime;
+    });
+
+    // ボタンでのシーン複製
+    cloneBtn.addEventListener('click', () => {
+        const img = new Image();
+        img.src = canvas.toDataURL('image/png');
+        img.className = 'captured-scene';
+        gallery.insertBefore(img, gallery.firstChild);
+    });
+
+    // 録画ストリーム・出力ハンドラ
+    function exportVideo() {
+        if (recordedChunks.length === 0) return;
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const now = new Date();
+        a.href = url;
+        a.download = `obs_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}.webm`;
+        a.click();
+        URL.revokeObjectURL(url);
+        recordedChunks = [];
+    }
+
+    function startRecording() {
+        const canvasStream = canvas.captureStream(30);
+        let options = { mimeType: 'video/webm;codecs=vp9' };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) { options = { mimeType: 'video/webm;codecs=vp8' }; }
+
+        mediaRecorder = new MediaRecorder(canvasStream, options);
+        mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
+        mediaRecorder.onstop = () => { exportVideo(); };
+
+        mediaRecorder.start(1000);
+        statusDiv.innerText = "● REC 配信中...";
+        statusDiv.style.color = "#ff5555";
+        startBtn.disabled = true; stopBtn.disabled = false;
+
+        const intervalMs = parseInt(splitInput.value, 10) * 60 * 1000;
+        splitTimer = setInterval(() => {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.requestData();
+                setTimeout(() => { exportVideo(); }, 500);
+            }
+        }, intervalMs);
+    }
+
+    function stopRecording() {
+        clearInterval(splitTimer);
+        if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+        statusDiv.innerText = "録画停止・保存完了";
+        statusDiv.style.color = "#a9a9b3";
+        startBtn.disabled = false; stopBtn.disabled = true;
+    }
+
+    startBtn.addEventListener('click', startRecording);
+    stopBtn.addEventListener('click', stopRecording);
+
+    getCameras();
+    requestAnimationFrame(draw);
+</script>
 </body>
 </html>
