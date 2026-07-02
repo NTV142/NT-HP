@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document PiP デモ</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+        /* PiPの中に表示したいコンテンツのスタイル */
+        #pip-content {
+            padding: 15px;
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            text-align: center;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Document PiP デモ</h2>
+    <p>下のボタンを押すと、水色のエリアがブラウザの外に飛び出します。</p>
+    
+    <button id="pip-btn">枠外に飛び出させる</button>
+    <br><br>
+
+    <div id="pip-content">
+        <h4>枠外のウィンドウ</h4>
+        <p>動画じゃなくてもOK！</p>
+        <button onclick="alert('枠外でもボタンが動きます！')">クリックしてみて</button>
+    </div>
+
+    <script>
+        const pipButton = document.getElementById('pip-btn');
+        const pipContent = document.getElementById('pip-content');
+
+        pipButton.addEventListener('click', async () => {
+            // ブラウザが対応しているかチェック
+            if (!('documentPictureInPicture' in window)) {
+                alert('お使いのブラウザはDocument PiPに対応していません（Chrome等で動きます）。');
+                return;
+            }
+
+            try {
+                // 新しいPiPウィンドウを開く
+                const pipWindow = await window.documentPictureInPicture.requestWindow({
+                    width: 250,
+                    height: 200,
+                });
+
+                // 元のページからPiPウィンドウへ要素を移動
+                pipWindow.document.body.appendChild(pipContent);
+
+                // PiP内のボタンなどにも元のスタイルを適用したい場合はここでコピーする
+                // （今回は簡易的にインライン風に要素ごと移動しています）
+
+                // PiPウィンドウが閉じられたら、要素を元のページに戻す
+                pipWindow.addEventListener('pagehide', () => {
+                    document.body.appendChild(pipContent);
+                });
+
+            } catch (error) {
+                console.error('PiPの起動に失敗しました:', error);
+            }
+        });
+    </script>
+
+</body>
+</html>
