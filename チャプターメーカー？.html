@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>チャプター作成ツール</title>
+<style>
+body { font-family: sans-serif; margin: 20px; }
+.container { display: flex; gap: 20px; }
+.left, .right { flex: 1; }
+video { width: 100%; max-height: 360px; background: #000; }
+.controls { margin: 10px 0; }
+textarea { width: 100%; height: 200px; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+</style>
+</head>
+<body>
+
+<h2>チャプター作成ツール</h2>
+<input type="file" id="videoFile" accept="video/*">
+
+<div class="container">
+<div class="left">
+<video id="videoPlayer" controls></video>
+<div class="controls">
+<button id="stampBtn" disabled>現在地を記録</button>
+<span id="timer">00:00:00</span>
+</div>
+<table>
+<thead>
+<tr><th>時間</th><th>タイトル</th></tr>
+</thead>
+<tbody id="chapterList"></tbody>
+</table>
+</div>
+
+<div class="right">
+<label>出力結果</label>
+<textarea id="output" readonly></textarea>
+<button id="downloadBtn">TXTダウンロード</button>
+</div>
+</div>
+
+<script>
+const video = document.getElementById('videoFile');
+const player = document.getElementById('videoPlayer');
+const stampBtn = document.getElementById('stampBtn');
+const timerSpan = document.getElementById('timer');
+const chapterList = document.getElementById('chapterList');
+const output = document.getElementById('output');
+const downloadBtn = document.getElementById('downloadBtn');
+
+let chapters = [];
+
+video.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    player.src = URL.createObjectURL(file);
+    stampBtn.disabled = false;
+  }
+});
+
+player.addEventListener('timeupdate', () => {
+  timerSpan.textContent = formatTime(player.currentTime);
+});
+
+function formatTime(seconds) {
+  const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+  const s = String(Math.floor(seconds % 60)).padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
+stampBtn.addEventListener('click', () => {
+  const timeStr = formatTime(player.currentTime);
+  const title = prompt('チャプターのタイトルを入力してください', `チャプター ${chapters.length + 1}`);
+  if (title === null) return;
+  
+  chapters.push({ time: timeStr, title: title });
+  updateUI();
+});
+
+function updateUI() {
+  chapterList.innerHTML = '';
+  let textOutput = '';
+  
+  chapters.forEach((ch, index) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${ch.time}</td><td><input type="text" value="${ch.title}" data-index="${index}" class="edit-title"></td>`;
+    chapterList.appendChild(row);
+    
+    textOutput += `${ch.time} ${ch.title}\n`;
+  });
+  
+  output.value = textOutput;
+
+  document.querySelectorAll('.edit-title').forEach(input => {
+    input.addEventListener('input', (e) => {
+      const idx = e.target.dataset.index;
+      chapters[idx].title = e.target.value;
+      let updatedText = '';
+      chapters.forEach(c => updatedText += `${c.time} ${c.title}\n`);
+      output.value = updatedText;
+    });
+  });
+}
+
+downloadBtn.addEventListener('click', () => {
+  const blob = new Blob([output.value], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'chapters.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+
+</body>
+</html>
