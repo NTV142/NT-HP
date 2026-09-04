@@ -68,11 +68,21 @@ body.black-mode .name {
     <script>
         const channelName = "ntsanch";
 
-        // キーボードの 'c' キー（大文字・小文字どちらでも）で文字色を切り替え
+        // 切り替え処理を共通化
+        function toggleColorMode() {
+            document.body.classList.toggle('black-mode');
+        }
+
+        // Cキーで切り替え
         document.addEventListener('keydown', (event) => {
             if (event.key === 'c' || event.key === 'C') {
-                document.body.classList.toggle('black-mode');
+                toggleColorMode();
             }
+        });
+
+        // ダブルクリック（ダブルタップ）で切り替え
+        document.addEventListener('dblclick', () => {
+            toggleColorMode();
         });
 
         const ws = new WebSocket('wss://irc-ws.chat.twitch.tv:443');
