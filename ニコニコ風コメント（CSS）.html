@@ -56,42 +56,47 @@ body {
 <body>
     <div id="log"></div>
 
-    <!-- StreamlabsのSocket API用ライブラリ -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
     <script>
-        // あなたのStreamlabsのトークン（URLのtoken=以降、またはソケットトークン）
-        // ※Socket用トークンはStreamlabsのダッシュボードのAPI Settings等から取得できます
-        const token = "YOUR_SOCKET_TOKEN"; 
-        const socket = io(`https://sockets.streamlabs.com?token=${token}`, { transports: ['websocket'] });
+        const channelName = "ntsanch";
 
-        socket.on('event', (event) => {
-            if (!event.for === 'twitch_account') return;
-            
-            if (event.type === 'donation') {
-                // 投げ銭などの処理（必要に応じて）
+        const ws = new WebSocket('wss://irc-ws.chat.twitch.tv:443');
+
+        ws.onopen = () => {
+            ws.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
+            ws.send('NICK justinfan' + Math.floor(Math.random() * 80000));
+            ws.send('JOIN #' + channelName);
+        };
+
+        ws.onmessage = (event) => {
+            const data = event.data;
+            if (data.startsWith('PING')) {
+                ws.send('PONG :tmi.twitch.tv');
+                return;
             }
-            
-            // チャットメッセージのイベント
-            if (event.type === 'chat') {
-                event.message.forEach(msg => {
-                    createScrollingText(msg.name, msg.message);
-                });
+
+            if (data.includes('PRIVMSG')) {
+                const matchName = data.match(/:([^!]+)!/);
+                const matchMsg = data.match(/PRIVMSG #[^ ]+ :(.+)/);
+
+                if (matchName && matchMsg) {
+                    const name = matchName[1];
+                    const text = matchMsg[1].trim();
+                    createScrollingText(name, text);
+                }
             }
-        });
+        };
 
         function createScrollingText(name, text) {
             const log = document.getElementById('log');
             const div = document.createElement('div');
             div.className = 'chat-item';
             
-            // 画面の縦方向のランダムな位置に流す場合（必要なら調整）
             const randomTop = Math.random() * (window.innerHeight - 150);
             div.style.top = randomTop + 'px';
 
             div.innerHTML = `<span class="name">${name}</span><span class="message">${text}</span>`;
             log.appendChild(div);
 
-            // アニメーション終了後に要素を削除
             setTimeout(() => {
                 div.remove();
             }, 10000);
