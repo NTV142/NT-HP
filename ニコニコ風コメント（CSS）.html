@@ -10,6 +10,11 @@ body {
     margin: 0;
     overflow: hidden;
     height: 100%;
+    user-select: none;
+}
+
+body.black-mode {
+    color: #000000 !important;
 }
 
 #log {
@@ -38,6 +43,10 @@ body {
     margin-right: 1em;
 }
 
+body.black-mode .name {
+    color: #000000 !important;
+}
+
 .message {
     display: inline-block;
 }
@@ -58,6 +67,11 @@ body {
 
     <script>
         const channelName = "ntsanch";
+
+        // 画面のダブルクリックで文字色を黒/白切り替え
+        document.addEventListener('dblclick', () => {
+            document.body.classList.toggle('black-mode');
+        });
 
         const ws = new WebSocket('wss://irc-ws.chat.twitch.tv:443');
 
