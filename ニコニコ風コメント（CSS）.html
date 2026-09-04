@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <style>
 body {
-    background: transparent !important;
+    background: #222 !important; /* 動作確認用に一時的に背景色を入れています */
     color: #FAFAFA;
-    font-size: 80px;
+    font-size: 50px;
     margin: 0;
     overflow: hidden;
     height: 100%;
@@ -27,13 +27,12 @@ body {
     position: absolute !important;
     white-space: nowrap !important;
     animation: scroll-right-to-left 10s linear forwards !important;
-    -webkit-animation: scroll-right-to-left 10s linear forwards !important;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: sans-serif;
     font-weight: bold;
 }
 
 .name {
-    color: #FAFAFA !important;
+    color: #FF5555 !important;
     font-weight: 700;
     margin-right: 1em;
 }
@@ -46,22 +45,20 @@ body {
     0% { transform: translateX(100vw); }
     100% { transform: translateX(-100%); }
 }
-
-@-webkit-keyframes scroll-right-to-left {
-    0% { -webkit-transform: translateX(100vw); }
-    100% { -webkit-transform: translateX(-100%); }
-}
 </style>
 </head>
 <body>
     <div id="log"></div>
+    <div id="debug" style="position:fixed; top:0; left:0; color:yellow; font-size:20px; z-index:9999;">Status: Connecting...</div>
 
     <script>
         const channelName = "ntsanch";
+        const debug = document.getElementById('debug');
 
         const ws = new WebSocket('wss://irc-ws.chat.twitch.tv:443');
 
         ws.onopen = () => {
+            debug.innerText = "Status: Connected. Joining #" + channelName;
             ws.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
             ws.send('NICK justinfan' + Math.floor(Math.random() * 80000));
             ws.send('JOIN #' + channelName);
@@ -74,6 +71,7 @@ body {
                 return;
             }
 
+            // 受信した生データをデバッグ表示してみる
             if (data.includes('PRIVMSG')) {
                 const matchName = data.match(/:([^!]+)!/);
                 const matchMsg = data.match(/PRIVMSG #[^ ]+ :(.+)/);
@@ -86,12 +84,16 @@ body {
             }
         };
 
+        ws.onerror = (error) => {
+            debug.innerText = "Status: Error occurred";
+        };
+
         function createScrollingText(name, text) {
             const log = document.getElementById('log');
             const div = document.createElement('div');
             div.className = 'chat-item';
             
-            const randomTop = Math.random() * (window.innerHeight - 150);
+            const randomTop = Math.random() * (window.innerHeight - 100);
             div.style.top = randomTop + 'px';
 
             div.innerHTML = `<span class="name">${name}</span><span class="message">${text}</span>`;
