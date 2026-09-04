@@ -11,6 +11,7 @@ body {
     overflow: hidden;
     height: 100%;
     user-select: none;
+    cursor: pointer;
 }
 
 body.black-mode {
@@ -68,7 +69,6 @@ body.black-mode .name {
     <script>
         const channelName = "ntsanch";
 
-        // 切り替え処理を共通化
         function toggleColorMode() {
             document.body.classList.toggle('black-mode');
         }
@@ -80,9 +80,15 @@ body.black-mode .name {
             }
         });
 
-        // ダブルクリック（ダブルタップ）で切り替え
-        document.addEventListener('dblclick', () => {
-            toggleColorMode();
+        // 確実なダブルタップ/ダブルクリック判定
+        let lastClickTime = 0;
+        document.addEventListener('click', (event) => {
+            const currentTime = new Date().getTime();
+            const timeDiff = currentTime - lastClickTime;
+            if (timeDiff < 400 && timeDiff > 0) {
+                toggleColorMode();
+            }
+            lastClickTime = currentTime;
         });
 
         const ws = new WebSocket('wss://irc-ws.chat.twitch.tv:443');
