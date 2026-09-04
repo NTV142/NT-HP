@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
 body {
     background: transparent !important;
@@ -11,6 +12,7 @@ body {
     overflow: hidden;
     height: 100%;
     user-select: none;
+    touch-action: manipulation;
     cursor: pointer;
 }
 
@@ -73,14 +75,12 @@ body.black-mode .name {
             document.body.classList.toggle('black-mode');
         }
 
-        // Cキーで切り替え
         document.addEventListener('keydown', (event) => {
             if (event.key === 'c' || event.key === 'C') {
                 toggleColorMode();
             }
         });
 
-        // 確実なダブルタップ/ダブルクリック判定
         let lastClickTime = 0;
         document.addEventListener('click', (event) => {
             const currentTime = new Date().getTime();
