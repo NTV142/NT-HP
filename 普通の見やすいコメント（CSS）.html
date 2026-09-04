@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body {
+    background: transparent !important;
+    color: #FAFAFA;
+    font-size: 80px;
+    margin: 0;
+    overflow: hidden;
+    height: 100%;
+}
+
+#log {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 0 10px 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#log .name {
+    color: #FAFAFA !important;
+    font-weight: 700;
+    margin-left: 0.1em;
+    margin-right: 1em;
+}
+
+#log .badge, 
+#log .badges, 
+#log .colon {
+    display: none !important;
+}
+
+#log > div {
+    padding-bottom: 0.4em;
+    animation: fadeOut 0.5s ease 99999999s forwards !important;
+    -webkit-animation: fadeOut 0.5s ease 99999999s forwards !important;
+    word-wrap: break-word;
+}
+
+#log .message {
+    display: inline-block;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: bold;
+}
+</style>
+</head>
+<body>
+    <div id="log"></div>
+</body>
+</html>

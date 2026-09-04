@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body {
+    background: transparent !important;
+    color: #FAFAFA;
+    font-size: 80px;
+    margin: 0;
+    overflow: hidden;
+    height: 100%;
+}
+
+#log {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#log .name {
+    color: #FAFAFA !important;
+    font-weight: 700;
+    margin-left: 0.1em;
+    margin-right: 1em;
+}
+
+#log .badge, 
+#log .badges, 
+#log .colon {
+    display: none !important;
+}
+
+#log > div {
+    position: absolute !important;
+    white-space: nowrap !important;
+    animation: scroll-right-to-left 10s linear forwards !important;
+    -webkit-animation: scroll-right-to-left 10s linear forwards !important;
+}
+
+@keyframes scroll-right-to-left {
+    0% {
+        transform: translateX(100vw);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+@-webkit-keyframes scroll-right-to-left {
+    0% {
+        -webkit-transform: translateX(100vw);
+    }
+    100% {
+        -webkit-transform: translateX(-100%);
+    }
+}
+
+#log .message {
+    display: inline-block;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: bold;
+}
+</style>
+</head>
+<body>
+    <div id="log"></div>
+</body>
+</html>
